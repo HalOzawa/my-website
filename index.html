@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>白色ポップアップ風デモ</title>
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    background: #f7f8fa;
+    font-family: sans-serif;
+    overflow: hidden;
+  }
+  #controls {
+    position: fixed; top: 10px; left: 10px;
+    z-index: 99999;
+    background: rgba(255,255,255,0.9);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  #stage {
+    width: 100%; height: 100%;
+    position: relative;
+  }
+  .popup {
+    position: absolute;
+    width: 220px; height: 120px;
+    background: #ffffff;
+    border: 2px solid #ddd; 
+    border-radius: 6px;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.1);
+    display: flex; flex-direction: column;
+    animation: fadein 0.3s ease;
+  }
+  .bar {
+    background: #ffffff; 
+    color: #333;         
+    padding: 4px 6px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #ddd; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .closeBtn {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    color: #333;
+    border-radius: 3px;
+    width: 20px; height: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
+  }
+  .content {
+    flex: 1; padding: 6px; font-size: 0.85rem;
+    color: #333;
+  }
+  @keyframes fadein {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+  <div id="controls">
+    <button id="stopBtn">停止</button>
+    <button id="clearBtn">全消去</button>
+  </div>
+  <div id="stage"></div>
+
+<script>
+(function(){
+  const stage = document.getElementById("stage");
+  const stopBtn  = document.getElementById("stopBtn");
+  const clearBtn = document.getElementById("clearBtn");
+
+  let timer = null;
+  let nextId = 1;
+
+  let offsetX = 50;
+  let offsetY = 50;
+
+  function makePopup(id){
+    const popup = document.createElement("div");
+    popup.className = "popup";
+
+    popup.style.left = offsetX + "px";
+    popup.style.top  = offsetY + "px";
+    offsetX += 30;
+    offsetY += 25;
+    if(offsetX > window.innerWidth - 250) offsetX = 50;
+    if(offsetY > window.innerHeight - 150) offsetY = 50;
+
+    popup.innerHTML = `
+      <div class="bar">
+        <span>⊂二二二（　＾ω＾）二⊃ﾌﾞｰﾝ</span>
+        <button class="closeBtn">×</button>
+      </div>
+      <div class="content">⊂二二二（　＾ω＾）二⊃ﾌﾞｰﾝ</div>
+    `;
+
+    popup.querySelector(".closeBtn").onclick = (e)=>{
+      e.stopPropagation();
+      for(let i=0; i<2; i++){
+        const extra = makePopup(nextId++);
+        stage.appendChild(extra);
+      }
+    };
+
+    return popup;
+  }
+
+  function start(){
+    if(timer) return;
+    timer = setInterval(()=>{
+      const popup = makePopup(nextId++);
+      stage.appendChild(popup);
+      if(stage.children.length > 200){
+        stop();
+      }
+    }, 100);
+  }
+
+  function stop(){
+    if(!timer) return;
+    clearInterval(timer);
+    timer = null;
+  }
+
+  function clearAll(){
+    stop();
+    stage.innerHTML = "";
+    nextId = 1;
+    offsetX = 50;
+    offsetY = 50;
+  }
+
+  stopBtn.onclick  = stop;
+  clearBtn.onclick = clearAll;
+
+  window.onload = start;
+})();
+</script>
+</body>
+</html>
